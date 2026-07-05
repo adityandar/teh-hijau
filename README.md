@@ -94,6 +94,61 @@ ports:
 docker compose down
 ```
 
+## Cloudflare Tunnel (Zero Trust)
+
+Buat akses publik tanpa buka port server:
+
+### Setup Tunnel
+
+```bash
+# Install cloudflared
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+chmod +x cloudflared
+sudo mv cloudflared /usr/local/bin/
+
+# Login & buat tunnel
+cloudflared tunnel login
+cloudflared tunnel create teh-hijau
+```
+
+### Multiple Subdomain
+
+Copy `cloudflared-config.yml` ke `/home/ubuntu/.cloudflared/config.yml`, lalu isi tunnel ID & domain kamu:
+
+```yaml
+tunnel: <TUNNEL_ID>
+credentials-file: /home/ubuntu/.cloudflared/<TUNNEL_ID>.json
+
+ingress:
+  - hostname: teh-hijau.domainmu.com
+    service: http://localhost:8085
+  - hostname: albumcover.domainmu.com
+    service: http://localhost:8085
+  - hostname: siluet.domainmu.com
+    service: http://localhost:8085
+  - service: http_status:404
+```
+
+### DNS
+
+Tambahin CNAME record di Cloudflare DNS buat tiap subdomain, semua pointing ke `<TUNNEL_ID>.cfargotunnel.com`.
+
+### Run
+
+```bash
+cloudflared tunnel run teh-hijau
+```
+
+Atau sebagai systemd service:
+
+```bash
+sudo cloudflared service install
+sudo systemctl start cloudflared
+sudo systemctl enable cloudflared
+```
+
+Semua subdomain sekarang akses app yg sama di port 8085.
+
 ## Deploy Manual (tanpa Docker)
 
 Copy semua file ke nginx/apache document root:
