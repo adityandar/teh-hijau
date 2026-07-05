@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teh Hijau — Silhouette Album Cover</title>
+<style>
+:root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #9AA84A;
+    --accent-hover: #8ea040;
+    --radius: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+header { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+header h1 { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+header p { color: var(--muted); margin-top: 0.25rem; font-size: 0.95rem; }
+main { width: 100%; max-width: 920px; padding: 0 1.25rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+.upload-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 3rem 2rem; text-align: center; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(154,168,74,0.06);
+}
+.upload-zone .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.upload-zone .text { color: var(--muted); font-size: 0.95rem; }
+.upload-zone .text strong { color: var(--accent); font-weight: 700; }
+.upload-zone input[type=file] { display: none; }
+
+.status-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.75rem 1rem;
+    display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;
+    color: var(--muted);
+}
+.status-bar.success { border-color: var(--accent); color: var(--accent); }
+.status-bar.error { border-color: #c75b4a; color: #c75b4a; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.status-bar.success .status-dot { background: var(--accent); }
+.status-bar.error .status-dot { background: #c75b4a; }
+.status-bar.loading .status-dot { animation: pulse 1s infinite; }
+
+.preview-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+.preview-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem;
+    display: flex; flex-direction: column; align-items: center;
+}
+.preview-card .label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 0.6rem; font-weight: 600;
+}
+.preview-card canvas {
+    width: 100%; max-width: 420px; aspect-ratio: 1;
+    border-radius: 6px; display: block;
+}
+.preview-card .method-badge {
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;
+    margin-top: 0.4rem; padding: 0.15rem 0.5rem; border-radius: 4px;
+    display: none;
+}
+.method-badge.ml { background: rgba(154,168,74,0.2); color: var(--accent); display: block; }
+.method-badge.heuristic { background: rgba(139,148,158,0.2); color: var(--muted); display: block; }
+
+.controls {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+}
+.controls h2 { font-size: 0.85rem; margin-bottom: 1rem; color: var(--text); font-weight: 700; }
+.control-row { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: flex-end; }
+.control-group { flex: 1; min-width: 150px; }
+.control-group label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; color: var(--muted); margin-bottom: 0.35rem;
+}
+.control-group label span { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.control-group input[type=range] { width: 100%; accent-color: var(--accent); }
+
+.color-section { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.color-presets { display: flex; gap: 0.5rem; }
+.color-preset {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.color-preset:hover { transform: scale(1.18); }
+.color-preset.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
+.color-section input[type=color] {
+    width: 36px; height: 36px; border: 2px solid var(--border);
+    border-radius: 6px; cursor: pointer; padding: 2px; background: transparent;
+}
+
+.toggle-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem;
+}
+.toggle-row input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+
+.actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.btn {
+    padding: 0.7rem 1.75rem; border: none; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: background 0.2s, opacity 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-secondary:hover:not(:disabled) { background: #3a4450; }
+
+.toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #000; padding: 0.65rem 1.6rem;
+    border-radius: 8px; font-weight: 700; font-size: 0.85rem;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+}
+.toast.show { opacity: 1; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+@media (max-width: 680px) {
+    .preview-area { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.6rem; }
+    .control-group { min-width: 120px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Teh Hijau</h1>
+    <p>Minimalist silhouette album cover &mdash; ML-powered person segmentation</p>
+</header>
+
+<main>
+    <div class="status-bar loading" id="statusBar">
+        <div class="status-dot"></div>
+        <span id="statusText">Loading MediaPipe&hellip;</span>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+        <div class="icon">&#128247;</div>
+        <div class="text">Drop your photo here, paste from clipboard, or <strong>browse</strong></div>
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="preview-area">
+        <div class="preview-card">
+            <div class="label">Original</div>
+            <canvas id="originalCanvas" width="420" height="420"></canvas>
+        </div>
+        <div class="preview-card">
+            <div class="label">Silhouette Result</div>
+            <canvas id="resultCanvas" width="420" height="420"></canvas>
+            <div class="method-badge" id="methodBadge"></div>
+        </div>
+    </div>
+
+    <div class="controls" id="controlsPanel">
+        <h2>Adjustments</h2>
+        <div class="control-row">
+            <div class="control-group">
+                <label>Smooth Edges <span id="smoothVal">5px</span></label>
+                <input type="range" min="0" max="8" value="5" id="smoothSlider" disabled>
+            </div>
+            <div class="control-group">
+                <label>Subject Size <span id="scaleVal">90%</span></label>
+                <input type="range" min="30" max="100" value="90" id="scaleSlider" disabled>
+            </div>
+        </div>
+
+        <div class="color-section">
+            <span style="font-size:0.78rem;color:var(--muted);">Background:</span>
+            <div class="color-presets" id="colorPresets"></div>
+            <input type="color" id="bgColorInput" value="#9AA84A" disabled>
+        </div>
+
+        <div class="toggle-row">
+            <input type="checkbox" id="invertToggle" checked>
+            <label for="invertToggle">Invert mask (swap subject/background)</label>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-primary" id="downloadBtn" disabled>Download PNG (1024&times;1024)</button>
+        <button class="btn btn-secondary" id="resetBtn" disabled>Reset</button>
+    </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+let mpFS = null;
+let mpIS = null;
+
+import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs')
+    .then(function(mp) {
+        mpFS = mp.FilesetResolver;
+        mpIS = mp.ImageSegmenter;
+        initMediaPipe();
+    })
+    .catch(function(e) {
+        console.warn('MediaPipe import failed:', e.message);
+        state.mediaPipeFailed = true;
+        updateStatusBar();
+    });
+
+// ============================================================================
+// STATE
+// ============================================================================
+const state = {
+    originalImage: null,
+    workImageData: null,
+    maskData: null,
+    resultCanvas: null,
+    debounceTimer: null,
+    toastTimer: null,
+    segmenter: null,
+    mediaPipeReady: false,
+    mediaPipeFailed: false,
+    mediaPipeLoading: false,
+    usedMethod: null,
+};
+
+function getSettings() {
+    return {
+        smoothRadius: parseInt($('smoothSlider').value),
+        subjectScale: parseInt($('scaleSlider').value),
+        bgColor: $('bgColorInput').value,
+        invert: $('invertToggle').checked,
+    };
+}
+
+// ============================================================================
+// DOM
+// ============================================================================
+function $(id) { return document.getElementById(id); }
+const uploadZone = $('uploadZone');
+const fileInput = $('fileInput');
+const originalCanvas = $('originalCanvas');
+const resultCanvas = $('resultCanvas');
+const methodBadge = $('methodBadge');
+
+// ============================================================================
+// STATUS BAR
+// ============================================================================
+function updateStatusBar() {
+    const bar = $('statusBar');
+    const text = $('statusText');
+    if (state.mediaPipeLoading) {
+        bar.className = 'status-bar loading';
+        text.textContent = 'Loading segmentation model (first load downloads ~300KB)...';
+    } else if (state.mediaPipeReady) {
+        bar.className = 'status-bar success';
+        text.textContent = 'MediaPipe ready — person segmentation active';
+    } else if (state.mediaPipeFailed) {
+        bar.className = 'status-bar error';
+        text.textContent = 'ML unavailable — using heuristic fallback. Serve via HTTP for full ML:  npx serve .';
+    }
+}
+
+// ============================================================================
+// MEDIAPIPE INIT
+// ============================================================================
+async function initMediaPipe() {
+    if (!mpFS || !mpIS || state.mediaPipeReady || state.mediaPipeLoading) return;
+    state.mediaPipeLoading = true;
+    updateStatusBar();
+    try {
+        const vision = await mpFS.forVisionTasks(
+            'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm'
+        );
+        state.segmenter = await mpIS.createFromOptions(vision, {
+            baseOptions: {
+                modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',
+            },
+            runningMode: 'IMAGE',
+            outputCategoryMask: true,
+        });
+        state.mediaPipeReady = true;
+        showToast('ML model ready');
+    } catch (e) {
+        console.warn('MediaPipe init failed:', e);
+        state.mediaPipeFailed = true;
+    }
+    state.mediaPipeLoading = false;
+    updateStatusBar();
+}
+
+// ============================================================================
+// IMAGE LOADING
+// ============================================================================
+function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            state.originalImage = img;
+            const maxDim = 800;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+                const s = maxDim / Math.max(w, h);
+                w = Math.round(w * s);
+                h = Math.round(h * s);
+            }
+            const wc = document.createElement('canvas');
+            wc.width = w; wc.height = h;
+            wc.getContext('2d').drawImage(img, 0, 0, w, h);
+            state.workImageData = wc.getImageData(0, 0, w, h);
+
+            $('downloadBtn').disabled = false;
+            $('resetBtn').disabled = false;
+            $('smoothSlider').disabled = false;
+            $('scaleSlider').disabled = false;
+            $('bgColorInput').disabled = false;
+
+            renderOriginal();
+            processImage();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetState() {
+    state.originalImage = null;
+    state.workImageData = null;
+    state.maskData = null;
+    state.resultCanvas = null;
+    $('downloadBtn').disabled = true;
+    $('resetBtn').disabled = true;
+    $('smoothSlider').disabled = true;
+    $('scaleSlider').disabled = true;
+    $('bgColorInput').disabled = true;
+    methodBadge.style.display = 'none';
+    drawPlaceholder(originalCanvas, 'No image loaded');
+    drawPlaceholder(resultCanvas, 'Upload an image to generate');
+}
+
+// ============================================================================
+// ML SEGMENTATION
+// ============================================================================
+function segmentWithMediaPipe(imageData) {
+    if (!state.segmenter) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.getContext('2d').putImageData(imageData, 0, 0);
+    try {
+        const result = state.segmenter.segment(canvas);
+        const raw = result.categoryMask.getAsUint8Array();
+        const mask = new Uint8Array(imageData.width * imageData.height);
+        for (let i = 0; i < mask.length; i++) mask[i] = raw[i] > 0 ? 255 : 0;
+        result.close();
+        return mask;
+    } catch (e) { return null; }
+}
+
+// ============================================================================
+// HEURISTIC
+// ============================================================================
+function getGrayscale(imageData) {
+    const p = imageData.data;
+    const g = new Uint8Array(imageData.width * imageData.height);
+    for (let i = 0; i < g.length; i++) {
+        const j = i * 4;
+        g[i] = Math.round(p[j] * 0.299 + p[j + 1] * 0.587 + p[j + 2] * 0.114);
+    }
+    return g;
+}
+
+function otsuThreshold(gray) {
+    const total = gray.length;
+    const hist = new Uint32Array(256);
+    for (let i = 0; i < total; i++) hist[gray[i]]++;
+    let sumAll = 0;
+    for (let i = 0; i < 256; i++) sumAll += i * hist[i];
+    let sumB = 0, wB = 0, maxVar = 0, bestT = 128;
+    for (let t = 0; t < 256; t++) {
+        wB += hist[t];
+        if (wB === 0) continue;
+        const wF = total - wB;
+        if (wF === 0) break;
+        sumB += t * hist[t];
+        const v = wB * wF * (sumB / wB - (sumAll - sumB) / wF) ** 2;
+        if (v > maxVar) { maxVar = v; bestT = t; }
+    }
+    return bestT;
+}
+
+function heuristicsMask(imageData) {
+    const w = imageData.width, h = imageData.height;
+    const gray = getGrayscale(imageData);
+    const t = otsuThreshold(gray);
+    const mask = new Uint8Array(w * h);
+    for (let i = 0; i < gray.length; i++) mask[i] = gray[i] > t ? 255 : 0;
+    const { labels, sizes } = labelComponents(mask, w, h);
+    return keepLargestComponent(mask, labels, sizes, w, h);
+}
+
+// ============================================================================
+// CONNECTED COMPONENTS
+// ============================================================================
+function labelComponents(mask, w, h) {
+    const labels = new Int32Array(w * h);
+    const parent = [0], rank = [0];
+    let next = 1;
+    function find(i) {
+        while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; }
+        return i;
+    }
+    function union(a, b) {
+        const ra = find(a), rb = find(b);
+        if (ra === rb) return;
+        if (rank[ra] < rank[rb]) parent[ra] = rb;
+        else if (rank[ra] > rank[rb]) parent[rb] = ra;
+        else { parent[rb] = ra; rank[ra]++; }
+    }
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const idx = y * w + x;
+            if (mask[idx] === 0) continue;
+            const left = x > 0 ? labels[y * w + (x - 1)] : 0;
+            const up = y > 0 ? labels[(y - 1) * w + x] : 0;
+            if (left === 0 && up === 0) {
+                labels[idx] = next;
+                parent[next] = next;
+                rank[next] = 0;
+                next++;
+            } else if (left !== 0 && up === 0) labels[idx] = left;
+            else if (left === 0 && up !== 0) labels[idx] = up;
+            else if (left === up) labels[idx] = left;
+            else { labels[idx] = left; union(left, up); }
+        }
+    }
+    const sizes = new Map();
+    for (let i = 0; i < labels.length; i++) {
+        if (labels[i] !== 0) {
+            const r = find(labels[i]);
+            labels[i] = r;
+            sizes.set(r, (sizes.get(r) || 0) + 1);
+        }
+    }
+    return { labels, sizes };
+}
+
+function keepLargestComponent(mask, labels, sizes, w, h) {
+    if (sizes.size === 0) return new Uint8Array(w * h);
+    let maxL = 0, maxS = 0;
+    for (const [l, s] of sizes) if (s > maxS) { maxS = s; maxL = l; }
+    const out = new Uint8Array(w * h);
+    for (let i = 0; i < labels.length; i++) out[i] = labels[i] === maxL ? 255 : 0;
+    return out;
+}
+
+// ============================================================================
+// MORPHOLOGY
+// ============================================================================
+function morphOp(mask, w, h, radius, target) {
+    const out = target === 255 ? new Uint8Array(w * h) : new Uint8Array(w * h).fill(255);
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const y0 = Math.max(0, y - radius), y1 = Math.min(h - 1, y + radius);
+            const x0 = Math.max(0, x - radius), x1 = Math.min(w - 1, x + radius);
+            let found = false;
+            for (let ny = y0; ny <= y1 && !found; ny++)
+                for (let nx = x0; nx <= x1 && !found; nx++)
+                    if (mask[ny * w + nx] === target) found = true;
+            if (found) out[y * w + x] = target;
+        }
+    }
+    return out;
+}
+function morphDilate(m, w, h, r) { return morphOp(m, w, h, r, 255); }
+function morphErode(m, w, h, r) { return morphOp(m, w, h, r, 0); }
+
+function boxBlur(mask, w, h, radius) {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const y0 = Math.max(0, y - radius), y1 = Math.min(h - 1, y + radius);
+            const x0 = Math.max(0, x - radius), x1 = Math.min(w - 1, x + radius);
+            let sum = 0, n = 0;
+            for (let ny = y0; ny <= y1; ny++)
+                for (let nx = x0; nx <= x1; nx++) { sum += mask[ny * w + nx]; n++; }
+            out[y * w + x] = (sum / n) | 0;
+        }
+    }
+    return out;
+}
+
+function findBoundingBox(mask, w, h) {
+    let x0 = w, y0 = h, x1 = 0, y1 = 0, ok = false;
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            if (mask[y * w + x] > 128) {
+                ok = true;
+                if (x < x0) x0 = x; if (y < y0) y0 = y;
+                if (x > x1) x1 = x; if (y > y1) y1 = y;
+            }
+        }
+    }
+    return ok ? { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 } : null;
+}
+
+// ============================================================================
+// PIPELINE
+// ============================================================================
+function processImage() {
+    if (!state.workImageData) return;
+    const s = getSettings();
+    const w = state.workImageData.width, h = state.workImageData.height;
+
+    let mask = null;
+    let usedMethod = 'heuristic';
+
+    if (state.mediaPipeReady) {
+        mask = segmentWithMediaPipe(state.workImageData);
+        if (mask) usedMethod = 'ml';
+    }
+    if (!mask) {
+        mask = heuristicsMask(state.workImageData);
+    }
+
+    if (s.invert) {
+        for (let i = 0; i < mask.length; i++) mask[i] = mask[i] === 255 ? 0 : 255;
+    }
+
+    const preMorph = new Uint8Array(mask);
+    mask = morphDilate(mask, w, h, 3);
+    mask = morphErode(mask, w, h, 3);
+    mask = morphErode(mask, w, h, 1);
+    mask = morphDilate(mask, w, h, 1);
+
+    const bbox = findBoundingBox(mask, w, h);
+    if (!bbox || bbox.w < 10 || bbox.h < 10) mask = preMorph;
+
+    if (s.smoothRadius > 0) {
+        const blurred = boxBlur(mask, w, h, s.smoothRadius);
+        for (let i = 0; i < mask.length; i++) mask[i] = blurred[i] > 127 ? 255 : 0;
+    }
+
+    state.maskData = mask;
+    state.usedMethod = usedMethod;
+    compose();
+}
+
+function compose() {
+    const mask = state.maskData;
+    if (!mask) return;
+
+    const srcW = state.workImageData.width;
+    const srcH = state.workImageData.height;
+    const OUT = 1024;
+    const s = getSettings();
+
+    const bbox = findBoundingBox(mask, srcW, srcH);
+    if (!bbox) { renderFallback(); return; }
+
+    const sil = document.createElement('canvas');
+    sil.width = srcW; sil.height = srcH;
+    const sctx = sil.getContext('2d');
+    const sd = sctx.createImageData(srcW, srcH);
+    for (let i = 0; i < mask.length; i++) {
+        if (mask[i] > 128) sd.data[i * 4 + 3] = 255;
+    }
+    sctx.putImageData(sd, 0, 0);
+
+    const out = document.createElement('canvas');
+    out.width = OUT; out.height = OUT;
+    const octx = out.getContext('2d');
+    octx.fillStyle = s.bgColor;
+    octx.fillRect(0, 0, OUT, OUT);
+
+    const pad = 1 - s.subjectScale / 100;
+    const mw = OUT * (1 - pad * 2), mh = OUT * (1 - pad * 2);
+    const sc = Math.min(mw / bbox.w, mh / bbox.h);
+
+    const dw = bbox.w * sc, dh = bbox.h * sc;
+    const dx = (OUT - dw) / 2, dy = OUT - dh;
+
+    octx.imageSmoothingEnabled = true;
+    octx.imageSmoothingQuality = 'high';
+    octx.drawImage(sil, bbox.x, bbox.y, bbox.w, bbox.h, dx, dy, dw, dh);
+
+    state.resultCanvas = out;
+    renderResult();
+}
+
+function renderFallback() {
+    const ctx = resultCanvas.getContext('2d');
+    ctx.fillStyle = '#161b22';
+    ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No subject detected', resultCanvas.width / 2, resultCanvas.height / 2);
+}
+
+// ============================================================================
+// RENDER
+// ============================================================================
+function drawPlaceholder(canvas, text) {
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#161b22';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+}
+
+function renderOriginal() {
+    if (!state.originalImage) return;
+    const c = originalCanvas, sz = c.width, ctx = c.getContext('2d');
+    ctx.fillStyle = '#161b22';
+    ctx.fillRect(0, 0, sz, sz);
+    const img = state.originalImage, a = img.width / img.height;
+    let dw, dh, dx, dy;
+    if (a > 1) { dw = sz; dh = sz / a; dx = 0; dy = (sz - dh) / 2; }
+    else { dh = sz; dw = sz * a; dx = (sz - dw) / 2; dy = 0; }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+function renderResult() {
+    if (!state.resultCanvas) return;
+    const ctx = resultCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(state.resultCanvas, 0, 0, resultCanvas.width, resultCanvas.height);
+    if (state.usedMethod === 'ml') {
+        methodBadge.textContent = 'ML segmentation';
+        methodBadge.className = 'method-badge ml';
+    } else {
+        methodBadge.textContent = 'heuristic';
+        methodBadge.className = 'method-badge heuristic';
+    }
+}
+
+// ============================================================================
+// EXPORT
+// ============================================================================
+function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+function downloadPNG() {
+    if (!state.resultCanvas) return;
+    state.resultCanvas.toBlob(function(blob) {
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = u; a.download = 'teh-hijau-silhouette.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(u);
+        showToast('Downloaded PNG (1024\u00d71024)');
+    }, 'image/png');
+}
+
+// ============================================================================
+// EVENTS
+// ============================================================================
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) handleFile(this.files[0]);
+});
+uploadZone.addEventListener('click', function() { fileInput.click(); });
+uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', function() { uploadZone.classList.remove('drag-over'); });
+uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+document.addEventListener('paste', function(e) {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) { handleFile(item.getAsFile()); break; }
+    }
+});
+document.addEventListener('dragover', function(e) { e.preventDefault(); });
+document.addEventListener('drop', function(e) { e.preventDefault(); });
+
+function debouncedProcess() {
+    clearTimeout(state.debounceTimer);
+    state.debounceTimer = setTimeout(processImage, 80);
+}
+
+$('smoothSlider').addEventListener('input', function() {
+    $('smoothVal').textContent = this.value + 'px';
+    debouncedProcess();
+});
+$('scaleSlider').addEventListener('input', function() {
+    $('scaleVal').textContent = this.value + '%';
+    debouncedProcess();
+});
+$('invertToggle').addEventListener('change', debouncedProcess);
+$('bgColorInput').addEventListener('input', function() { updateColorPresetActive(); debouncedProcess(); });
+$('downloadBtn').addEventListener('click', downloadPNG);
+$('resetBtn').addEventListener('click', resetState);
+
+// ============================================================================
+// COLOR PRESETS
+// ============================================================================
+const PRESETS = [
+    '#9AA84A', '#A3B05C', '#8F9E4B', '#95A552',
+    '#D4A574', '#C4956A', '#BFA07E',
+    '#6B8E9B', '#5C7A8A', '#7A9BAE',
+    '#CF6C5E', '#C75B4A', '#E07062',
+    '#4A4A5A', '#3C3C4C', '#5C5C6E',
+    '#E8D5B7', '#D4C4A8', '#F0E4D0',
+];
+
+function buildColorPresets() {
+    const ctr = $('colorPresets');
+    PRESETS.forEach(function(color) {
+        const el = document.createElement('div');
+        el.className = 'color-preset';
+        el.style.backgroundColor = color;
+        el.title = color;
+        el.addEventListener('click', function() {
+            $('bgColorInput').value = color;
+            updateColorPresetActive();
+            debouncedProcess();
+        });
+        ctr.appendChild(el);
+    });
+    updateColorPresetActive();
+}
+
+function updateColorPresetActive() {
+    const cur = $('bgColorInput').value.toUpperCase();
+    document.querySelectorAll('.color-preset').forEach(function(el) {
+        const val = el.style.backgroundColor.toUpperCase();
+        el.classList.toggle('active', val === cur || rgbToHex(val) === cur);
+    });
+}
+
+function rgbToHex(rgb) {
+    const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!m) return '';
+    return '#' + [m[1], m[2], m[3]].map(function(x) {
+        return parseInt(x).toString(16).padStart(2, '0');
+    }).join('').toUpperCase();
+}
+
+buildColorPresets();
+updateStatusBar();
+drawPlaceholder(originalCanvas, 'No image loaded');
+drawPlaceholder(resultCanvas, 'Upload an image to generate');
+</script>
+
+</body>
+</html>
