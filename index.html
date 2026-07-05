@@ -6,153 +6,132 @@
 <title>Teh Hijau — Silhouette Album Cover</title>
 <style>
 :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --text: #c9d1d9;
-    --muted: #8b949e;
     --accent: #9AA84A;
-    --accent-hover: #8ea040;
-    --radius: 12px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    --yellow: #FFD600;
+    --pink: #FF5E8A;
+    --cyan: #00D4C8;
+    --black: #1a1a1a;
+    --white: #fffef7;
+    --muted: #777;
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
+    background: var(--white);
+    color: var(--black);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-header { text-align: center; padding: 2.5rem 1rem 1.5rem; }
-header h1 { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
-header p { color: var(--muted); margin-top: 0.25rem; font-size: 0.95rem; }
-main { width: 100%; max-width: 920px; padding: 0 1.25rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
-
-.upload-zone {
-    border: 2px dashed var(--border); border-radius: var(--radius);
-    padding: 3rem 2rem; text-align: center; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-}
-.upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--accent);
-    background: rgba(154,168,74,0.06);
-}
-.upload-zone .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
-.upload-zone .text { color: var(--muted); font-size: 0.95rem; }
-.upload-zone .text strong { color: var(--accent); font-weight: 700; }
-.upload-zone input[type=file] { display: none; }
-
-.status-bar {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 0.75rem 1rem;
-    display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;
-    color: var(--muted);
-}
-.status-bar.success { border-color: var(--accent); color: var(--accent); }
-.status-bar.error { border-color: #c75b4a; color: #c75b4a; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-.status-bar.success .status-dot { background: var(--accent); }
-.status-bar.error .status-dot { background: #c75b4a; }
-.status-bar.loading .status-dot { animation: pulse 1s infinite; }
-
-.preview-area {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-}
-.preview-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1rem;
     display: flex; flex-direction: column; align-items: center;
 }
-.preview-card .label {
-    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--muted); margin-bottom: 0.6rem; font-weight: 600;
+header { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+header h1 {
+    font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;
+    display: inline-block; background: var(--yellow);
+    padding: 0.2rem 1rem; border: 3px solid var(--black);
+    box-shadow: 4px 4px 0 var(--black);
 }
-.preview-card canvas {
-    width: 100%; max-width: 420px; aspect-ratio: 1;
-    border-radius: 6px; display: block;
-}
-.preview-card .method-badge {
-    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;
-    margin-top: 0.4rem; padding: 0.15rem 0.5rem; border-radius: 4px;
-    display: none;
-}
-.method-badge.ml { background: rgba(154,168,74,0.2); color: var(--accent); display: block; }
-.method-badge.heuristic { background: rgba(139,148,158,0.2); color: var(--muted); display: block; }
+header p { margin-top: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+main { width: 100%; max-width: 600px; padding: 0 1rem 2.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
 
-.controls {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.5rem;
+.status-bar {
+    background: var(--white); border: 3px solid var(--black);
+    padding: 0.55rem 0.75rem; display: flex; align-items: center; gap: 0.45rem;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    box-shadow: 4px 4px 0 var(--black);
 }
-.controls h2 { font-size: 0.85rem; margin-bottom: 1rem; color: var(--text); font-weight: 700; }
-.control-row { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: flex-end; }
-.control-group { flex: 1; min-width: 150px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--black); flex-shrink: 0; border: 2px solid var(--black); }
+.status-bar.success .status-dot { background: var(--accent); }
+.status-bar.loading .status-dot { animation: pulse 0.8s infinite; }
+
+/* ---- main card ---- */
+.main-card {
+    background: var(--white); border: 4px solid var(--black);
+    padding: 1rem; box-shadow: 6px 6px 0 var(--black);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+}
+.upload-zone {
+    border: 3px dashed var(--black); padding: 2.5rem 1.5rem; text-align: center;
+    cursor: pointer; width: 100%; transition: background 0.15s;
+}
+.upload-zone:hover { background: var(--yellow); }
+.upload-zone .icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.upload-zone .text { font-size: 0.9rem; font-weight: 500; }
+.upload-zone .text strong { background: var(--yellow); padding: 0.1rem 0.3rem; border: 2px solid var(--black); font-weight: 700; }
+.upload-zone input[type=file] { display: none; }
+
+.preview-area { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0.5rem; }
+.preview-area canvas {
+    width: 100%; max-width: 480px; aspect-ratio: 1;
+    border: 3px solid var(--black); display: block;
+}
+.hold-btn {
+    font-size: 0.72rem !important;
+    padding: 0.4rem 1rem !important;
+}
+
+/* ---- controls ---- */
+.controls {
+    background: var(--white); border: 4px solid var(--black);
+    padding: 1.25rem; box-shadow: 5px 5px 0 var(--black);
+}
+.controls h2 {
+    font-size: 0.8rem; margin-bottom: 0.85rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    display: inline-block; background: var(--cyan); padding: 0.1rem 0.5rem;
+    border: 2px solid var(--black);
+}
+.control-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+.control-group { flex: 1; min-width: 140px; }
 .control-group label {
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 0.78rem; color: var(--muted); margin-bottom: 0.35rem;
+    font-size: 0.75rem; margin-bottom: 0.3rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
 }
-.control-group label span { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
-.control-group input[type=range] { width: 100%; accent-color: var(--accent); }
+.control-group label span { background: var(--black); color: var(--white); padding: 0.08rem 0.35rem; font-size: 0.65rem; font-weight: 700; }
+.control-group input[type=range] { width: 100%; accent-color: var(--accent); border: 2px solid var(--black); border-radius: 0; height: 6px; background: var(--white); }
 
-.color-section { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.color-presets { display: flex; gap: 0.5rem; }
-.color-preset {
-    width: 30px; height: 30px; border-radius: 50%;
-    border: 2px solid var(--border); cursor: pointer;
-    transition: transform 0.15s, border-color 0.15s;
-}
-.color-preset:hover { transform: scale(1.18); }
-.color-preset.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
-.color-section input[type=color] {
-    width: 36px; height: 36px; border: 2px solid var(--border);
-    border-radius: 6px; cursor: pointer; padding: 2px; background: transparent;
-}
+.toggle-row { display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 0.75rem; }
+.toggle-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
 
-.toggle-row {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem;
-}
-.toggle-row input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
-
+/* ---- buttons ---- */
 .actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 .btn {
-    padding: 0.7rem 1.75rem; border: none; border-radius: 8px;
-    font-size: 0.9rem; font-weight: 700; cursor: pointer;
-    transition: background 0.2s, opacity 0.2s, transform 0.1s;
+    padding: 0.6rem 1.5rem; border: 3px solid var(--black);
+    font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-transform: uppercase; letter-spacing: 0.04em;
 }
-.btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.btn-primary { background: var(--accent); color: #000; }
-.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
-.btn-secondary { background: var(--border); color: var(--text); }
-.btn-secondary:hover:not(:disabled) { background: #3a4450; }
+.btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--black); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--black); }
+.btn-primary { background: var(--yellow); color: var(--black); box-shadow: 4px 4px 0 var(--black); }
+.btn-primary:hover:not(:disabled) { background: #FFE540; }
+.btn-secondary { background: var(--white); color: var(--black); box-shadow: 4px 4px 0 var(--black); }
+.btn-secondary:hover:not(:disabled) { background: #f0ede0; }
 
 .toast {
-    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-    background: var(--accent); color: #000; padding: 0.65rem 1.6rem;
-    border-radius: 8px; font-weight: 700; font-size: 0.85rem;
-    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: var(--white); padding: 0.55rem 1.4rem;
+    border: 3px solid var(--black); box-shadow: 4px 4px 0 var(--black);
+    font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em;
+    opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 100;
 }
 .toast.show { opacity: 1; }
 
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-@media (max-width: 680px) {
-    .preview-area { grid-template-columns: 1fr; }
-    header h1 { font-size: 1.6rem; }
+@media (max-width: 480px) {
+    header h1 { font-size: 1.5rem; }
+    header p { font-size: 0.72rem; }
     .control-group { min-width: 120px; }
+    .upload-zone { padding: 2rem 1rem; }
+    .btn { padding: 0.55rem 1rem; font-size: 0.78rem; }
 }
 </style>
 </head>
 <body>
 
 <header>
-    <h1>Teh Hijau</h1>
-    <p>Minimalist silhouette album cover &mdash; ML-powered person segmentation</p>
+    <h1>TEH HIJAU</h1>
+    <p>Silhouette Album Cover Generator</p>
 </header>
 
 <main>
@@ -161,25 +140,21 @@ main { width: 100%; max-width: 920px; padding: 0 1.25rem 3rem; display: flex; fl
         <span id="statusText">Loading MediaPipe&hellip;</span>
     </div>
 
-    <div class="upload-zone" id="uploadZone">
-        <div class="icon">&#128247;</div>
-        <div class="text">Drop your photo here, paste from clipboard, or <strong>browse</strong></div>
-        <input type="file" id="fileInput" accept="image/*">
-    </div>
-
-    <div class="preview-area">
-        <div class="preview-card">
-            <div class="label">Original</div>
-            <canvas id="originalCanvas" width="420" height="420"></canvas>
+    <div class="main-card">
+        <div class="upload-zone" id="uploadZone">
+            <span class="icon">&#128247;</span>
+            <span class="text">Drop, paste, or <strong>browse</strong> a photo</span>
+            <input type="file" id="fileInput" accept="image/*">
         </div>
-        <div class="preview-card">
-            <div class="label">Silhouette Result</div>
+
+        <div class="preview-area" id="previewArea" style="display:none">
             <canvas id="resultCanvas" width="420" height="420"></canvas>
-            <div class="method-badge" id="methodBadge"></div>
+            <canvas id="originalCanvas" width="420" height="420" style="display:none"></canvas>
+            <button class="btn btn-secondary hold-btn" id="holdBtn" style="display:none">Hold to see original</button>
         </div>
     </div>
 
-    <div class="controls" id="controlsPanel">
+    <div class="controls">
         <h2>Adjustments</h2>
         <div class="control-row">
             <div class="control-group">
@@ -191,21 +166,14 @@ main { width: 100%; max-width: 920px; padding: 0 1.25rem 3rem; display: flex; fl
                 <input type="range" min="30" max="100" value="90" id="scaleSlider" disabled>
             </div>
         </div>
-
-        <div class="color-section">
-            <span style="font-size:0.78rem;color:var(--muted);">Background:</span>
-            <div class="color-presets" id="colorPresets"></div>
-            <input type="color" id="bgColorInput" value="#9AA84A" disabled>
-        </div>
-
         <div class="toggle-row">
             <input type="checkbox" id="invertToggle" checked>
-            <label for="invertToggle">Invert mask (swap subject/background)</label>
+            <label for="invertToggle">Invert mask</label>
         </div>
     </div>
 
     <div class="actions">
-        <button class="btn btn-primary" id="downloadBtn" disabled>Download PNG (1024&times;1024)</button>
+        <button class="btn btn-primary" id="downloadBtn" disabled>Download PNG</button>
         <button class="btn btn-secondary" id="resetBtn" disabled>Reset</button>
     </div>
 </main>
@@ -228,9 +196,9 @@ import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bund
         updateStatusBar();
     });
 
-// ============================================================================
-// STATE
-// ============================================================================
+const BG = '#9AA84A';
+const OUT = 1024;
+
 const state = {
     originalImage: null,
     workImageData: null,
@@ -242,56 +210,46 @@ const state = {
     mediaPipeReady: false,
     mediaPipeFailed: false,
     mediaPipeLoading: false,
-    usedMethod: null,
 };
 
 function getSettings() {
     return {
         smoothRadius: parseInt($('smoothSlider').value),
         subjectScale: parseInt($('scaleSlider').value),
-        bgColor: $('bgColorInput').value,
         invert: $('invertToggle').checked,
     };
 }
 
-// ============================================================================
-// DOM
-// ============================================================================
 function $(id) { return document.getElementById(id); }
 const uploadZone = $('uploadZone');
+const previewArea = $('previewArea');
 const fileInput = $('fileInput');
-const originalCanvas = $('originalCanvas');
 const resultCanvas = $('resultCanvas');
-const methodBadge = $('methodBadge');
+const originalCanvas = $('originalCanvas');
+const holdBtn = $('holdBtn');
 
-// ============================================================================
-// STATUS BAR
-// ============================================================================
 function updateStatusBar() {
     const bar = $('statusBar');
     const text = $('statusText');
     if (state.mediaPipeLoading) {
         bar.className = 'status-bar loading';
-        text.textContent = 'Loading segmentation model (first load downloads ~300KB)...';
+        text.textContent = 'Loading segmentation model...';
     } else if (state.mediaPipeReady) {
         bar.className = 'status-bar success';
         text.textContent = 'MediaPipe ready — person segmentation active';
     } else if (state.mediaPipeFailed) {
         bar.className = 'status-bar error';
-        text.textContent = 'ML unavailable — using heuristic fallback. Serve via HTTP for full ML:  npx serve .';
+        text.textContent = 'ML unavailable. Serve via HTTP:  npx serve .';
     }
 }
 
-// ============================================================================
-// MEDIAPIPE INIT
-// ============================================================================
 async function initMediaPipe() {
     if (!mpFS || !mpIS || state.mediaPipeReady || state.mediaPipeLoading) return;
     state.mediaPipeLoading = true;
     updateStatusBar();
     try {
         const vision = await mpFS.forVisionTasks(
-            'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm'
+            'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm/'
         );
         state.segmenter = await mpIS.createFromOptions(vision, {
             baseOptions: {
@@ -310,9 +268,6 @@ async function initMediaPipe() {
     updateStatusBar();
 }
 
-// ============================================================================
-// IMAGE LOADING
-// ============================================================================
 function handleFile(file) {
     if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
@@ -329,16 +284,20 @@ function handleFile(file) {
             }
             const wc = document.createElement('canvas');
             wc.width = w; wc.height = h;
-            wc.getContext('2d').drawImage(img, 0, 0, w, h);
-            state.workImageData = wc.getImageData(0, 0, w, h);
+            const wctx = wc.getContext('2d');
+            wctx.drawImage(img, 0, 0, w, h);
+            state.workImageData = wctx.getImageData(0, 0, w, h);
+
+            uploadZone.style.display = 'none';
+            previewArea.style.display = 'flex';
+            holdBtn.style.display = 'inline-block';
 
             $('downloadBtn').disabled = false;
             $('resetBtn').disabled = false;
             $('smoothSlider').disabled = false;
             $('scaleSlider').disabled = false;
-            $('bgColorInput').disabled = false;
 
-            renderOriginal();
+            renderOriginalToCache();
             processImage();
         };
         img.src = e.target.result;
@@ -351,27 +310,26 @@ function resetState() {
     state.workImageData = null;
     state.maskData = null;
     state.resultCanvas = null;
+
+    uploadZone.style.display = '';
+    previewArea.style.display = 'none';
+    holdBtn.style.display = 'none';
+
     $('downloadBtn').disabled = true;
     $('resetBtn').disabled = true;
     $('smoothSlider').disabled = true;
     $('scaleSlider').disabled = true;
-    $('bgColorInput').disabled = true;
-    methodBadge.style.display = 'none';
-    drawPlaceholder(originalCanvas, 'No image loaded');
-    drawPlaceholder(resultCanvas, 'Upload an image to generate');
+
+    drawPlaceholder();
 }
 
-// ============================================================================
-// ML SEGMENTATION
-// ============================================================================
 function segmentWithMediaPipe(imageData) {
     if (!state.segmenter) return null;
-    const canvas = document.createElement('canvas');
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    canvas.getContext('2d').putImageData(imageData, 0, 0);
+    const c = document.createElement('canvas');
+    c.width = imageData.width; c.height = imageData.height;
+    c.getContext('2d').putImageData(imageData, 0, 0);
     try {
-        const result = state.segmenter.segment(canvas);
+        const result = state.segmenter.segment(c);
         const raw = result.categoryMask.getAsUint8Array();
         const mask = new Uint8Array(imageData.width * imageData.height);
         for (let i = 0; i < mask.length; i++) mask[i] = raw[i] > 0 ? 255 : 0;
@@ -380,9 +338,6 @@ function segmentWithMediaPipe(imageData) {
     } catch (e) { return null; }
 }
 
-// ============================================================================
-// HEURISTIC
-// ============================================================================
 function getGrayscale(imageData) {
     const p = imageData.data;
     const g = new Uint8Array(imageData.width * imageData.height);
@@ -406,7 +361,7 @@ function otsuThreshold(gray) {
         const wF = total - wB;
         if (wF === 0) break;
         sumB += t * hist[t];
-        const v = wB * wF * (sumB / wB - (sumAll - sumB) / wF) ** 2;
+        const v = wB * wF * Math.pow(sumB / wB - (sumAll - sumB) / wF, 2);
         if (v > maxVar) { maxVar = v; bestT = t; }
     }
     return bestT;
@@ -422,9 +377,6 @@ function heuristicsMask(imageData) {
     return keepLargestComponent(mask, labels, sizes, w, h);
 }
 
-// ============================================================================
-// CONNECTED COMPONENTS
-// ============================================================================
 function labelComponents(mask, w, h) {
     const labels = new Int32Array(w * h);
     const parent = [0], rank = [0];
@@ -477,9 +429,6 @@ function keepLargestComponent(mask, labels, sizes, w, h) {
     return out;
 }
 
-// ============================================================================
-// MORPHOLOGY
-// ============================================================================
 function morphOp(mask, w, h, radius, target) {
     const out = target === 255 ? new Uint8Array(w * h) : new Uint8Array(w * h).fill(255);
     for (let y = 0; y < h; y++) {
@@ -527,24 +476,17 @@ function findBoundingBox(mask, w, h) {
     return ok ? { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 } : null;
 }
 
-// ============================================================================
-// PIPELINE
-// ============================================================================
 function processImage() {
     if (!state.workImageData) return;
     const s = getSettings();
     const w = state.workImageData.width, h = state.workImageData.height;
 
     let mask = null;
-    let usedMethod = 'heuristic';
 
     if (state.mediaPipeReady) {
         mask = segmentWithMediaPipe(state.workImageData);
-        if (mask) usedMethod = 'ml';
     }
-    if (!mask) {
-        mask = heuristicsMask(state.workImageData);
-    }
+    if (!mask) mask = heuristicsMask(state.workImageData);
 
     if (s.invert) {
         for (let i = 0; i < mask.length; i++) mask[i] = mask[i] === 255 ? 0 : 255;
@@ -565,17 +507,14 @@ function processImage() {
     }
 
     state.maskData = mask;
-    state.usedMethod = usedMethod;
     compose();
 }
 
 function compose() {
     const mask = state.maskData;
     if (!mask) return;
-
     const srcW = state.workImageData.width;
     const srcH = state.workImageData.height;
-    const OUT = 1024;
     const s = getSettings();
 
     const bbox = findBoundingBox(mask, srcW, srcH);
@@ -593,13 +532,12 @@ function compose() {
     const out = document.createElement('canvas');
     out.width = OUT; out.height = OUT;
     const octx = out.getContext('2d');
-    octx.fillStyle = s.bgColor;
+    octx.fillStyle = BG;
     octx.fillRect(0, 0, OUT, OUT);
 
     const pad = 1 - s.subjectScale / 100;
     const mw = OUT * (1 - pad * 2), mh = OUT * (1 - pad * 2);
     const sc = Math.min(mw / bbox.w, mh / bbox.h);
-
     const dw = bbox.w * sc, dh = bbox.h * sc;
     const dx = (OUT - dw) / 2, dy = OUT - dh;
 
@@ -613,32 +551,31 @@ function compose() {
 
 function renderFallback() {
     const ctx = resultCanvas.getContext('2d');
-    ctx.fillStyle = '#161b22';
+    ctx.fillStyle = '#fffef7';
     ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
-    ctx.fillStyle = '#8b949e';
-    ctx.font = '14px -apple-system, sans-serif';
+    ctx.fillStyle = '#1a1a1a';
+    ctx.font = '700 14px sans-serif';
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText('No subject detected', resultCanvas.width / 2, resultCanvas.height / 2);
 }
 
-// ============================================================================
-// RENDER
-// ============================================================================
-function drawPlaceholder(canvas, text) {
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#161b22';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#8b949e';
-    ctx.font = '14px -apple-system, sans-serif';
+function drawPlaceholder() {
+    const ctx = resultCanvas.getContext('2d');
+    ctx.fillStyle = '#fffef7';
+    ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+    ctx.fillStyle = '#1a1a1a';
+    ctx.font = '700 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.fillText('Drop a photo to generate silhouette', resultCanvas.width / 2, resultCanvas.height / 2);
 }
 
-function renderOriginal() {
+function renderOriginalToCache() {
     if (!state.originalImage) return;
-    const c = originalCanvas, sz = c.width, ctx = c.getContext('2d');
-    ctx.fillStyle = '#161b22';
+    const sz = originalCanvas.width;
+    const ctx = originalCanvas.getContext('2d');
+    ctx.fillStyle = '#fffef7';
     ctx.fillRect(0, 0, sz, sz);
     const img = state.originalImage, a = img.width / img.height;
     let dw, dh, dx, dy;
@@ -655,18 +592,8 @@ function renderResult() {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(state.resultCanvas, 0, 0, resultCanvas.width, resultCanvas.height);
-    if (state.usedMethod === 'ml') {
-        methodBadge.textContent = 'ML segmentation';
-        methodBadge.className = 'method-badge ml';
-    } else {
-        methodBadge.textContent = 'heuristic';
-        methodBadge.className = 'method-badge heuristic';
-    }
 }
 
-// ============================================================================
-// EXPORT
-// ============================================================================
 function showToast(msg) {
     const t = $('toast');
     t.textContent = msg;
@@ -696,13 +623,6 @@ fileInput.addEventListener('change', function() {
     if (this.files && this.files[0]) handleFile(this.files[0]);
 });
 uploadZone.addEventListener('click', function() { fileInput.click(); });
-uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-uploadZone.addEventListener('dragleave', function() { uploadZone.classList.remove('drag-over'); });
-uploadZone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    if (e.dataTransfer && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
 document.addEventListener('paste', function(e) {
     const items = e.clipboardData && e.clipboardData.items;
     if (!items) return;
@@ -711,7 +631,10 @@ document.addEventListener('paste', function(e) {
     }
 });
 document.addEventListener('dragover', function(e) { e.preventDefault(); });
-document.addEventListener('drop', function(e) { e.preventDefault(); });
+document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
 
 function debouncedProcess() {
     clearTimeout(state.debounceTimer);
@@ -727,59 +650,28 @@ $('scaleSlider').addEventListener('input', function() {
     debouncedProcess();
 });
 $('invertToggle').addEventListener('change', debouncedProcess);
-$('bgColorInput').addEventListener('input', function() { updateColorPresetActive(); debouncedProcess(); });
 $('downloadBtn').addEventListener('click', downloadPNG);
 $('resetBtn').addEventListener('click', resetState);
 
-// ============================================================================
-// COLOR PRESETS
-// ============================================================================
-const PRESETS = [
-    '#9AA84A', '#A3B05C', '#8F9E4B', '#95A552',
-    '#D4A574', '#C4956A', '#BFA07E',
-    '#6B8E9B', '#5C7A8A', '#7A9BAE',
-    '#CF6C5E', '#C75B4A', '#E07062',
-    '#4A4A5A', '#3C3C4C', '#5C5C6E',
-    '#E8D5B7', '#D4C4A8', '#F0E4D0',
-];
-
-function buildColorPresets() {
-    const ctr = $('colorPresets');
-    PRESETS.forEach(function(color) {
-        const el = document.createElement('div');
-        el.className = 'color-preset';
-        el.style.backgroundColor = color;
-        el.title = color;
-        el.addEventListener('click', function() {
-            $('bgColorInput').value = color;
-            updateColorPresetActive();
-            debouncedProcess();
-        });
-        ctr.appendChild(el);
-    });
-    updateColorPresetActive();
+// Hold-to-see-original
+function showOriginal() {
+    if (!state.originalImage) return;
+    resultCanvas.style.display = 'none';
+    originalCanvas.style.display = 'block';
 }
-
-function updateColorPresetActive() {
-    const cur = $('bgColorInput').value.toUpperCase();
-    document.querySelectorAll('.color-preset').forEach(function(el) {
-        const val = el.style.backgroundColor.toUpperCase();
-        el.classList.toggle('active', val === cur || rgbToHex(val) === cur);
-    });
+function hideOriginal() {
+    resultCanvas.style.display = 'block';
+    originalCanvas.style.display = 'none';
 }
+holdBtn.addEventListener('mousedown', showOriginal);
+holdBtn.addEventListener('mouseup', hideOriginal);
+holdBtn.addEventListener('mouseleave', hideOriginal);
+holdBtn.addEventListener('touchstart', function(e) { e.preventDefault(); showOriginal(); });
+holdBtn.addEventListener('touchend', hideOriginal);
+holdBtn.addEventListener('touchcancel', hideOriginal);
 
-function rgbToHex(rgb) {
-    const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    if (!m) return '';
-    return '#' + [m[1], m[2], m[3]].map(function(x) {
-        return parseInt(x).toString(16).padStart(2, '0');
-    }).join('').toUpperCase();
-}
-
-buildColorPresets();
+drawPlaceholder();
 updateStatusBar();
-drawPlaceholder(originalCanvas, 'No image loaded');
-drawPlaceholder(resultCanvas, 'Upload an image to generate');
 </script>
 
 </body>
